@@ -1,50 +1,68 @@
 [Unit]
-Description=Kubelet via Hyperkube ACI
+Description=Openshift Node
 Wants=rpc-statd.service
-[Service]
-EnvironmentFile=/etc/kubernetes/kubelet.env
-Environment="RKT_RUN_ARGS=--uuid-file-save=/var/cache/kubelet-pod.uuid \
-  --volume=resolv,kind=host,source=/etc/resolv.conf \
-  --mount volume=resolv,target=/etc/resolv.conf \
-  --volume var-lib-cni,kind=host,source=/var/lib/cni \
-  --mount volume=var-lib-cni,target=/var/lib/cni \
-  --volume var-lib-kubelet,kind=host,source=/var/lib/kubelet \
-  --mount volume=var-lib-kubelet,target=/var/lib/kubelet \
-  --volume var-log,kind=host,source=/var/log \
-  --mount volume=var-log,target=/var/log"
+After=docker.service
+Wants=docker.service
 
+[Service]
+
+Type=simple
 ExecStartPre=/bin/mkdir -p /etc/kubernetes/manifests
 ExecStartPre=/bin/mkdir -p /srv/kubernetes/manifests
 ExecStartPre=/bin/mkdir -p /etc/kubernetes/checkpoint-secrets
 ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
+ExecStartPre=/bin/mkdir -p /etc/cni/net.d
 ExecStartPre=/bin/mkdir -p /var/lib/cni
 ExecStartPre=/bin/mkdir -p /var/lib/kubelet/pki
-${kubeconfig_fetch_cmd}
-ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/root-ca.crt"
+ExecStartPre=/bin/mkdir -p /var/lib/origin
+ExecStartPre=/bin/mkdir -p /run/openvswitch
+ExecStartPre=/bin/mkdir -p /opt/cni
+
 ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
 
-ExecStart=/usr/lib/coreos/kubelet-wrapper \
-  --allow-privileged \
-  --anonymous-auth=false \
-  --cert-dir=/var/lib/kubelet/pki \
-  --client-ca-file=/etc/kubernetes/root-ca.crt \
-  --cloud-provider=${cloud_provider} \
-  --cluster-dns=${cluster_dns_ip} \
-  --cluster-domain=cluster.local \
-  --cni-bin-dir=/var/lib/cni/bin \
-  --cni-conf-dir=/etc/kubernetes/cni/net.d \
-  --exit-on-lock-contention \
-  --kubeconfig=/etc/kubernetes/kubeconfig \
-  --lock-file=/var/run/lock/kubelet.lock \
-  --minimum-container-ttl-duration=6m0s \
-  --network-plugin=cni \
-  --node-labels=${node_label} \
-  --pod-manifest-path=/etc/kubernetes/manifests \
-  --require-kubeconfig \
-  --rotate-certificates \
-  ${cloud_provider_config} \
-  ${debug_config} \
-  ${node_taints_param}
+ExecStart=/usr/bin/rkt \
+	--trust-keys-from-https \
+	--insecure-options=image \
+	run \
+	--uuid-file-save=/var/cache/kubelet-pod.uuid \
+	--volume=resolv,kind=host,source=/etc/resolv.conf \
+	--mount volume=resolv,target=/etc/resolv.conf \
+	--volume=etc-origin,kind=host,source=/etc/origin \
+	--mount volume=etc-origin,target=/etc/origin \
+	--volume=etc-cni,kind=host,source=/etc/cni \
+	--mount volume=etc-cni,target=/etc/cni \
+	--volume var-log,kind=host,source=/var/log \
+	--mount volume=var-log,target=/var/log \
+	--volume var-lib-origin,kind=host,source=/var/lib/origin,recursive=true \
+	--mount volume=var-lib-origin,target=/var/lib/origin \
+	--volume var-lib-docker,kind=host,source=/var/lib/docker \
+	--mount volume=var-lib-docker,target=/var/lib/docker \
+	--volume var-lib-cni,kind=host,source=/var/lib/cni \
+	--mount volume=var-lib-cni,target=/var/lib/cni \
+	--volume opt-cni,kind=host,source=/opt/cni \
+	--mount volume=opt-cni,target=/opt/cni \
+	--volume run-docker,kind=host,source=/run/docker \
+	--mount volume=run-docker,target=/run/docker \
+	--volume run-docker-sock,kind=host,source=/run/docker.sock \
+	--mount volume=run-docker-sock,target=/run/docker.sock \
+	--volume run-docker-pid,kind=host,source=/run/docker.pid \
+	--mount volume=run-docker-pid,target=/run/docker.pid \
+	--volume run-openvswitch,kind=host,source=/run/openvswitch \
+	--mount volume=run-openvswitch,target=/run/openvswitch \
+	--volume lib-modules,kind=host,source=/lib/modules \
+	--mount volume=lib-modules,target=/lib/modules \
+	--volume etc-ssl-certs,kind=host,source=/etc/ssl/certs,readOnly=true \
+	--mount volume=etc-ssl-certs,target=/etc/ssl/certs \
+	--volume usr-share-certs,kind=host,source=/usr/share/ca-certificates,readOnly=true \
+	--mount volume=usr-share-certs,target=/usr/share/ca-certificates \
+	--stage1-from-dir=stage1-fly.aci \
+	--hosts-entry host \
+	quay.io/casey_callendrello/openshift-hyperkube-testing:v3.10.0 \
+	--working-dir=/var/lib/origin \
+	--exec=/usr/bin/openshift \
+	--set-env="OPENSHIFT_CONTAINERIZED=false" \
+	-- \
+	start node --config=/etc/origin/node/node-config.yaml
 
 ExecStop=-/usr/bin/rkt stop --uuid-file=/var/cache/kubelet-pod.uuid
 
