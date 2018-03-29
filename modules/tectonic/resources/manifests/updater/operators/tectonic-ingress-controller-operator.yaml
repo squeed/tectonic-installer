@@ -37,7 +37,6 @@ spec:
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65534
       serviceAccount: tectonic-ingress-controller-operator
       tolerations:
       - key: "node-role.kubernetes.io/master"

@@ -43,7 +43,6 @@ spec:
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65534
       tolerations:
       - key: "node-role.kubernetes.io/master"
         operator: "Exists"

@@ -10,6 +10,7 @@ set -e
     --output=/assets
 
 mkdir -p /etc/kubernetes/manifests/
+cp -r $(pwd)/bootstrap-configs /etc/kubernetes/bootstrap-configs
 
 # shellcheck disable=SC2154
 /usr/bin/docker run \
