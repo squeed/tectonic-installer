@@ -105,12 +105,15 @@ data "template_file" "kco-config_yaml" {
 
     etcd_servers = "${join(",", formatlist("https://%s:2379", var.etcd_endpoints))}"
 
-    service_cidr = "${var.service_cidr}"
+    service_cidr        = "${var.service_cidr}"
+    kube_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
 
     oidc_client_id      = "${var.oidc_client_id}"
     oidc_groups_claim   = "${var.oidc_groups_claim}"
     oidc_issuer_url     = "${var.oidc_issuer_url}"
     oidc_username_claim = "${var.oidc_username_claim}"
+
+    routing_subdomain = "${var.routing_subdomain}"
   }
 }
 
