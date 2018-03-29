@@ -14,6 +14,7 @@ ExecStartPre=/bin/mkdir -p /etc/kubernetes/cni/net.d
 ExecStartPre=/bin/mkdir -p /etc/cni/net.d
 ExecStartPre=/bin/mkdir -p /var/lib/cni
 ExecStartPre=/bin/mkdir -p /var/lib/kubelet/pki
+ExecStartPre=/bin/mkdir -p /var/lib/kubelet/manifests
 ExecStartPre=/bin/mkdir -p /var/lib/origin
 ExecStartPre=/bin/mkdir -p /run/openvswitch
 ExecStartPre=/bin/mkdir -p /opt/cni
@@ -39,6 +40,8 @@ ExecStart=/usr/bin/rkt \
 	--mount volume=var-lib-docker,target=/var/lib/docker \
 	--volume var-lib-cni,kind=host,source=/var/lib/cni \
 	--mount volume=var-lib-cni,target=/var/lib/cni \
+	--volume var-lib-kubelet,kind=host,source=/var/lib/kubelet \
+	--mount volume=var-lib-kubelet,target=/var/lib/kubelet \
 	--volume opt-cni,kind=host,source=/opt/cni \
 	--mount volume=opt-cni,target=/opt/cni \
 	--volume run-docker,kind=host,source=/run/docker \
