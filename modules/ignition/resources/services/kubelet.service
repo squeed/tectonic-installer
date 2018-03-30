@@ -19,6 +19,10 @@ ExecStartPre=/bin/mkdir -p /var/lib/origin
 ExecStartPre=/bin/mkdir -p /run/openvswitch
 ExecStartPre=/bin/mkdir -p /opt/cni
 
+# Update the node-config.yaml file
+ExecStartPre=/bin/sh -c 'IP=$(host $HOSTNAME | head -n 1 | cut -d " " -f 4); sed "s/%%NODEIP%%/$IP/" < /etc/origin/node/node-config.yaml.in | sed s/%%NODENAME%%/$HOSTNAME/ > /etc/origin/node/node-config.yaml'
+ExecStartPre=/bin/cp /etc/kubernetes/kubeconfig /etc/origin/node/node.kubeconfig
+
 ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/cache/kubelet-pod.uuid
 
 ExecStart=/usr/bin/rkt \
@@ -32,6 +36,8 @@ ExecStart=/usr/bin/rkt \
 	--mount volume=etc-origin,target=/etc/origin \
 	--volume=etc-cni,kind=host,source=/etc/cni \
 	--mount volume=etc-cni,target=/etc/cni \
+	--volume=etc-kubernetes,kind=host,source=/etc/kubernetes \
+	--mount volume=etc-kubernetes,target=/etc/kubernetes \
 	--volume var-log,kind=host,source=/var/log \
 	--mount volume=var-log,target=/var/log \
 	--volume var-lib-origin,kind=host,source=/var/lib/origin,recursive=true \

@@ -66,9 +66,23 @@ resource "null_resource" "kubeconfig" {
     destination = "$HOME/kubeconfig"
   }
 
+  provisioner "file" {
+    source = "./generated/tls/admin.key"
+    destination = "$HOME/admin.key"
+  }
+
+  provisioner "file" {
+    source = "./generated/tls/admin.crt"
+    destination = "$HOME/admin.crt"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "sudo mv /home/core/kubeconfig /etc/kubernetes/kubeconfig",
+      "sudo mkdir -p /etc/origin/node",
+      "sudo cp /etc/kubernetes/kubeconfig /etc/origin/node/node.kubeconfig",
+      "sudo mv /home/core/admin.key /etc/origin/node/admin.key",
+      "sudo mv /home/core/admin.crt /etc/origin/node/admin.crt",
     ]
   }
 }

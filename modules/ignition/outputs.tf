@@ -6,6 +6,14 @@ output "max_user_watches_rendered" {
   value = "${data.template_file.max_user_watches.rendered}"
 }
 
+output "origin_node_config_id" {
+  value = "${data.ignition_file.origin_node_config.id}"
+}
+
+output "origin_node_config_rendered" {
+  value = "${data.template_file.origin_node_config.rendered}"
+}
+
 output "docker_dropin_id" {
   value = "${data.ignition_systemd_unit.docker_dropin.id}"
 }

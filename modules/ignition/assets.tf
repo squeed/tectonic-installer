@@ -247,3 +247,17 @@ data "ignition_file" "systemd_default_env" {
     content = "${data.template_file.systemd_default_env.rendered}"
   }
 }
+
+data "template_file" "origin_node_config" {
+  template = "${file("${path.module}/resources/node/node-config.yaml.in")}"
+}
+
+data "ignition_file" "origin_node_config" {
+  filesystem = "root"
+  path       = "/etc/origin/node/node-config.yaml.in"
+  mode       = 0644
+
+  content {
+    content = "${data.template_file.origin_node_config.rendered}"
+  }
+}

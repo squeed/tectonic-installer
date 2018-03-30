@@ -1,0 +1,53 @@
+allowDisabledDocker: false
+apiVersion: v1
+authConfig:
+  authenticationCacheSize: 1000
+  authenticationCacheTTL: 5m
+  authorizationCacheSize: 1000
+  authorizationCacheTTL: 5m
+dnsBindAddress: ""
+dnsDomain: cluster.local
+dnsIP: 
+dnsNameservers: null
+dnsRecursiveResolvConf: ""
+dockerConfig:
+  dockerShimRootDirectory: /var/lib/dockershim
+  dockerShimSocket: /var/run/dockershim.sock
+  execHandlerName: native
+enableUnidling: true
+imageConfig:
+  format: openshift/origin-$${component}:$${version}
+  latest: false
+iptablesSyncPeriod: 30s
+kind: NodeConfig
+masterClientConnectionOverrides:
+  acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+  burst: 40
+  contentType: application/vnd.kubernetes.protobuf
+  qps: 20
+masterKubeConfig: node.kubeconfig
+networkConfig:
+  mtu: 1450
+  networkPluginName: cni
+nodeIP: ""
+nodeName: %NODENAME%
+podManifestConfig:
+  path: /etc/kubernetes/manifests
+  fileCheckIntervalSeconds: 10
+servingInfo:
+  bindAddress: %NODEIP%:10250
+  bindNetwork: tcp4
+  certFile: admin.crt
+  keyFile: admin.key
+  namedCertificates: null
+volumeConfig:
+  localQuota:
+    perFSGroup: null
+volumeDirectory: /var/lib/origin/openshift.local.volumes
+kubeletArguments:
+  cgroups-per-qos: ["false"]
+  enforce-node-allocatable: [""]
+  fail-swap-on: ["false"]
+  eviction-soft: [""]
+  eviction-hard: [""]
+  cgroup-driver: ["cgroupfs"]
