@@ -117,7 +117,7 @@ cd "$ASSETS_PATH/tectonic"
 set +e
 i=0
 echo "Waiting for Kubernetes API..."
-until $KUBECTL cluster-info; do
+until $KUBECTL status; do
   i=$((i+1))
   echo "Cluster not available yet, waiting for 5 seconds ($i)"
   sleep 5
