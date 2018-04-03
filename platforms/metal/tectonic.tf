@@ -48,6 +48,8 @@ module "bootkube" {
   admin_cert_pem               = "${module.kube_certs.admin_cert_pem}"
   admin_key_pem                = "${module.kube_certs.admin_key_pem}"
 
+  routing_subdomain = "${element(split(":", var.tectonic_metal_ingress_domain), 0)}"
+
   etcd_endpoints = "${split(",",
     length(compact(var.tectonic_etcd_servers)) == 0
       ? join(",", var.tectonic_metal_controller_domains)
@@ -91,6 +93,7 @@ module "tectonic" {
   ingress_ca_cert_pem = "${module.ingress_certs.ca_cert_pem}"
   ingress_cert_pem    = "${module.ingress_certs.cert_pem}"
   ingress_key_pem     = "${module.ingress_certs.key_pem}"
+  ingress_bundle_pem  = "${module.ingress_certs.bundle_pem}"
 
   identity_client_ca_cert  = "${module.ca_certs.root_ca_cert_pem}"
   identity_client_cert_pem = "${module.identity_certs.client_cert_pem}"
@@ -101,7 +104,7 @@ module "tectonic" {
 
   console_client_id = "tectonic-console"
   kubectl_client_id = "tectonic-kubectl"
-  ingress_kind      = "HostPort"
+  ingress_kind      = "haproxy-router"
   master_count      = "${length(var.tectonic_metal_controller_names)}"
   stats_url         = "${var.tectonic_stats_url}"
 

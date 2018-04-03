@@ -5,7 +5,7 @@ KUBECONFIG="$1"
 ASSETS_PATH="$2"
 
 # Setup API Authentication
-KUBECTL="/kubectl --kubeconfig=$KUBECONFIG"
+KUBECTL="oc --config=$KUBECONFIG"
 
 # Setup helper functions
 
@@ -150,6 +150,7 @@ kubectl create -f secrets/identity-grpc-server.yaml
 kubectl create -f ingress/pull.json
 
 echo "Creating Operators"
+kubectl create -f security/priviledged-scc-tectonic.yaml
 kubectl create -f updater/tectonic-channel-operator-kind.yaml
 kubectl create -f updater/app-version-kind.yaml
 kubectl create -f updater/migration-status-kind.yaml

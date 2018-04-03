@@ -37,6 +37,7 @@ spec:
       restartPolicy: Always
       securityContext:
         runAsNonRoot: true
+        runAsUser: 65534
       terminationGracePeriodSeconds: 30
       tolerations:
       - key: "node-role.kubernetes.io/master"

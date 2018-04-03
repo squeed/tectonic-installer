@@ -207,3 +207,7 @@ variable "tectonic_networking" {
   description = "configures the network to be used in the cluster"
   type        = "string"
 }
+
+variable "routing_subdomain" {
+  type = "string"
+}
