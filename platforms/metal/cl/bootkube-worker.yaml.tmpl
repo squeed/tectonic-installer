@@ -69,6 +69,12 @@ ${ign_custom_ca_certs}
       mode: 0644
       contents:
         inline: {{.ign_systemd_default_env_json}}
+    - path: /etc/origin/node/node-config.yaml.in
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: {{.ign_origin_node_config_json}}
+
 passwd:
   users:
     - name: core

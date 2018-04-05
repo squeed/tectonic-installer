@@ -51,3 +51,5 @@ kubeletArguments:
   eviction-soft: [""]
   eviction-hard: [""]
   cgroup-driver: ["cgroupfs"]
+  node-labels: ["${kubelet_node_label}"]
+  register-with-taints: ["${kubelet_node_taints}"]
